@@ -5,6 +5,9 @@ import { getConfig, type Config } from "./config.js";
 import { getStagedDiff } from "./git.js";
 import { generateMessage } from "./llm.js";
 
+const DEFAULT_PROVIDER = "openai";
+const DEFAULT_MODEL = "gpt-4o-mini";
+
 const program = new Command();
 
 program
@@ -16,14 +19,21 @@ program
   .option("--commit", "auto-commit with the generated message")
   .option("--dry-run", "show diff summary and proposed message without committing")
   .option("--edit", "open generated message in $EDITOR before committing")
-  .action(async (opts) => {
-    const config: Config = getConfig();
+  .action(async (opts: { provider?: string; model?: string; commit?: boolean; dryRun?: boolean; edit?: boolean }) => {
+    const config = getConfig();
+    const isConfigEmpty = Object.keys(config).length === 0;
 
-    const provider = opts.provider ?? config.provider;
-    const model = opts.model ?? config.model;
+    const provider = (opts.provider ?? config.provider ?? DEFAULT_PROVIDER) as "openai" | "anthropic";
+    const model = opts.model ?? config.model ?? DEFAULT_MODEL;
+    const commit = opts.commit ?? config.commit ?? false;
+    const dryRun = opts.dryRun ?? config.dryRun ?? false;
 
-    if (!provider || !model) {
-      console.error("Error: Set provider and model via flags or ~/.gitcommitgen.json");
+    // Default to --edit if no flags and no config
+    const noFlags = opts.commit === undefined && opts.dryRun === undefined && opts.edit === undefined;
+    const edit = opts.edit ?? config.edit ?? (isConfigEmpty && noFlags ? true : false);
+
+    if (provider !== "openai" && provider !== "anthropic") {
+      console.error(`Error: Unsupported provider "${provider}". Supported: openai, anthropic`);
       process.exit(1);
     }
 
@@ -31,7 +41,9 @@ program
       provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
     const apiKey = process.env[apiKeyEnv];
     if (!apiKey) {
-      console.error(`Error: ${apiKeyEnv} not set`);
+      console.error(`Error: ${apiKeyEnv} is not set.
+To use ${provider}, please provide your API key by running:
+export ${apiKeyEnv}="your-key-here"`);
       process.exit(1);
     }
 
@@ -41,26 +53,26 @@ program
       process.exit(1);
     }
 
-    if (opts.dryRun) {
+    if (dryRun) {
       console.log("--- Staged diff ---");
       console.log(diff.length > 3000 ? diff.slice(0, 3000) + "\n... (truncated)" : diff);
     }
 
     const message = await generateMessage({ provider, model, apiKey, diff });
 
-    if (opts.edit) {
+    if (edit) {
       const { editMessage } = await import("./edit.js");
       const edited = editMessage(message);
       if (!edited.trim()) {
         console.log("Aborted: empty message from editor.");
         process.exit(0);
       }
-      await commitOrPrint(edited, opts.commit);
+      await commitOrPrint(edited, commit);
     } else {
-      if (opts.dryRun) {
+      if (dryRun) {
         console.log("\n--- Generated message ---");
       }
-      await commitOrPrint(message, opts.commit);
+      await commitOrPrint(message, commit);
     }
   });
 

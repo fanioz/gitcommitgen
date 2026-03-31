@@ -29,9 +29,14 @@ Optional: create a config file at `~/.gitcommitgen.json` to set defaults:
 ```json
 {
   "provider": "openai",
-  "model": "gpt-4o-mini"
+  "model": "gpt-4o-mini",
+  "commit": true,
+  "edit": true,
+  "dryRun": false
 }
 ```
+
+By default, if no configuration file is found and no flags are provided, the tool defaults to `--edit` mode.
 
 ## Usage
 

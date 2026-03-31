@@ -5,6 +5,9 @@ import { join } from "node:path";
 export interface Config {
   provider?: "openai" | "anthropic";
   model?: string;
+  commit?: boolean;
+  edit?: boolean;
+  dryRun?: boolean;
 }
 
 export function getConfig(): Config {
