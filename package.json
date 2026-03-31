@@ -1,5 +1,5 @@
 {
-  "name": "gitcommitgen",
+  "name": "@fanioz/gitcommitgen",
   "version": "1.0.0",
   "description": "AI-powered conventional commit message generator",
   "type": "module",
