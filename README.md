@@ -9,7 +9,7 @@ Writing good commit messages is tedious. Let AI do it. Just stage your changes a
 ## Install
 
 ```bash
-npm install -g gitcommitgen
+npm install -g @fanioz/gitcommitgen
 ```
 
 ## Setup
