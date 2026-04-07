@@ -1,19 +1,35 @@
 {
   "name": "@fanioz/gitcommitgen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-powered conventional commit message generator",
   "type": "module",
   "bin": {
     "gitcommitgen": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js"
   },
-  "keywords": ["git", "commit", "conventional-commits", "ai", "cli"],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenihDev/gitcommitgen.git"
+  },
+  "homepage": "https://github.com/BenihDev/gitcommitgen#readme",
+  "bugs": {
+    "url": "https://github.com/BenihDev/gitcommitgen/issues"
+  },
+  "keywords": [
+    "git",
+    "commit",
+    "conventional-commits",
+    "ai",
+    "cli"
+  ],
+  "author": "fanioz <fanio.zilla@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "commander": "^14.0.3",
